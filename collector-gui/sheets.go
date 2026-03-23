@@ -31,13 +31,14 @@ func UploadToGoogleSheets(specs PCSpecs) error {
 	row := []interface{}{
 		timestamp,
 		specs.Serial,
+		specs.OS,
 		specs.CPU,
 		specs.RAMTotal,
 		specs.RAMModules,
 		specs.Disks,
-		specs.Tag1, // NEW: Column G
-		specs.Tag2, // NEW: Column H
-		specs.Tag3, // NEW: Column I
+		specs.Tag1,
+		specs.Tag2,
+		specs.Tag3,
 	}
 
 	rb := &sheets.ValueRange{

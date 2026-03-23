@@ -29,8 +29,9 @@ func InitDB() (*sql.DB, error) {
 
 // GenerateHash creates a unique SHA-256 fingerprint of the current hardware specs
 func GenerateHash(specs PCSpecs) string {
-	// Added 3 more %s for the Tag1, Tag2, and Tag3 fields
-	combined := fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s",
+	// Now we have 9 "%s" slots to include the OS!
+	combined := fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s|%s",
+		specs.OS, // <-- ADD OS HERE
 		specs.CPU,
 		specs.RAMTotal,
 		specs.RAMModules,

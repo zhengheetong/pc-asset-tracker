@@ -10,6 +10,7 @@ import (
 
 // PCSpecs holds the hardware data
 type PCSpecs struct {
+	OS         string `json:"os"`
 	CPU        string `json:"cpu"`
 	RAMTotal   string `json:"ramTotal"`
 	RAMModules string `json:"ramModules"`
@@ -21,6 +22,10 @@ type PCSpecs struct {
 }
 
 // WMI Structs
+type Win32_OperatingSystem struct {
+	Caption string
+}
+
 type Win32_PhysicalMemory struct {
 	Manufacturer, PartNumber, DeviceLocator string
 	Capacity                                uint64
@@ -46,7 +51,14 @@ func ScanHardware() (PCSpecs, error) {
 		specs.CPU = cpuInfo[0].ModelName
 	}
 
-	// 2. Get RAM Info (Total + Individual Modules via WMI)
+	// OS
+	var osData []Win32_OperatingSystem
+	queryOS := wmi.CreateQuery(&osData, "")
+	if err := wmi.Query(queryOS, &osData); err == nil && len(osData) > 0 {
+		// This will grab things like "Microsoft Windows 11 Pro"
+		specs.OS = osData[0].Caption
+	}
+
 	// 2. Get RAM Info (Total + Individual Modules via WMI)
 	var ramModules []Win32_PhysicalMemory
 	qRam := wmi.CreateQuery(&ramModules, "")

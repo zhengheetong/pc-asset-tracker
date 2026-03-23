@@ -1,6 +1,7 @@
 export namespace main {
 	
 	export class PCSpecs {
+	    os: string;
 	    cpu: string;
 	    ramTotal: string;
 	    ramModules: string;
@@ -16,6 +17,7 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.os = source["os"];
 	        this.cpu = source["cpu"];
 	        this.ramTotal = source["ramTotal"];
 	        this.ramModules = source["ramModules"];

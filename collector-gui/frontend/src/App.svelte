@@ -4,6 +4,7 @@
 
   // Use LOWERCASE keys here to match the Go JSON tags
   let specs = {
+    os: "Scanning...",
     cpu: "Loading...",
     ramTotal: "",
     ramModules: "",
@@ -57,6 +58,10 @@
       <div class="info-row">
         <span class="label">Serial:</span>
         <span class="value">{specs.serial || "Searching..."}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">OS:</span>
+        <span class="value">{specs.os}</span>
       </div>
       <div class="info-row">
         <span class="label">CPU:</span>
