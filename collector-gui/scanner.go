@@ -10,15 +10,14 @@ import (
 
 // PCSpecs holds the hardware data
 type PCSpecs struct {
-	CPU        string
-	RAMTotal   string
-	RAMModules string
-	Disks      string
-	Serial     string
-	// NEW: Meta Tags for categorization
-	Tag1 string
-	Tag2 string
-	Tag3 string
+	CPU        string `json:"cpu"`
+	RAMTotal   string `json:"ramTotal"`
+	RAMModules string `json:"ramModules"`
+	Disks      string `json:"disks"`
+	Serial     string `json:"serial"`
+	Tag1       string `json:"tag1"`
+	Tag2       string `json:"tag2"`
+	Tag3       string `json:"tag3"`
 }
 
 // WMI Structs
@@ -97,19 +96,22 @@ func ScanHardware() (PCSpecs, error) {
 		specs.RAMModules = strings.Join(modules, " | ")
 	}
 
-	// 3. FAST Disk Scan (Using WMI)
+	// Inside ScanHardware() in scanner.go
 	var drives []Win32_DiskDrive
-	// We filter out USB drives directly in the query to save time
-	queryDisks := wmi.CreateQuery(&drives, "WHERE InterfaceType != 'USB'")
+	// Remove the "WHERE" clause temporarily to see if your disks appear
+	queryDisks := wmi.CreateQuery(&drives, "")
 
 	if err := wmi.Query(queryDisks, &drives); err == nil && len(drives) > 0 {
 		var validDisks []string
 		for _, d := range drives {
-			// Marketing Math: Manufacturers use 1000^3
-			// 1,000,000,000,000 / (1000^3) = 1000 GB (1TB)
+			// Skip tiny partitions or virtual drives (less than 1GB)
 			sizeGB := d.Size / (1000 * 1000 * 1000)
 
-			if sizeGB > 0 {
+			// Also skip USB drives by checking the model or interface
+			isUSB := strings.Contains(strings.ToLower(d.InterfaceType), "usb") ||
+				strings.Contains(strings.ToLower(d.Model), "usb")
+
+			if sizeGB > 0 && !isUSB {
 				driveStr := fmt.Sprintf("%s (%dGB)", strings.TrimSpace(d.Model), sizeGB)
 				validDisks = append(validDisks, driveStr)
 			}

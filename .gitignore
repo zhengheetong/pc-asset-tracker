@@ -1,2 +1,2 @@
-collector/service-account.json
-collector/local_cache.db
+collector-gui/service-account.json
+collector-gui/local_cache.db

@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // InitDB creates the local database file and table if they don't exist
 func InitDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./local_cache.db")
+	db, err := sql.Open("sqlite", "./local_cache.db")
 	if err != nil {
 		return nil, err
 	}
