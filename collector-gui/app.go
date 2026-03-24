@@ -78,15 +78,12 @@ func (a *App) CheckCredentials() bool {
 	return err == nil
 }
 
-// 2. The main Installation logic
 func (a *App) InstallToPC() (string, error) {
-	// Find where the user is running the current .exe from
 	exePath, err := os.Executable()
 	if err != nil {
 		return "", fmt.Errorf("could not find executable: %v", err)
 	}
 
-	// Define the hidden install location: C:\Users\Username\AppData\Local\PCTracker
 	appData, err := os.UserConfigDir()
 	if err != nil {
 		return "", fmt.Errorf("could not find AppData folder: %v", err)
@@ -95,21 +92,27 @@ func (a *App) InstallToPC() (string, error) {
 	installDir := filepath.Join(appData, "PCTracker")
 	os.MkdirAll(installDir, os.ModePerm)
 
-	// Define destination paths
 	destExe := filepath.Join(installDir, filepath.Base(exePath))
 	destJson := filepath.Join(installDir, "service-account.json")
+	destConfig := filepath.Join(installDir, "config.json") // <--- New path
 
-	// Copy the Executable
+	// 1. Copy the Executable
 	if err := copyFile(exePath, destExe); err != nil {
 		return "", fmt.Errorf("failed to copy program: %v", err)
 	}
 
-	// Copy the JSON Credentials
+	// 2. Copy the Google Credentials
 	if err := copyFile("service-account.json", destJson); err != nil {
 		return "", fmt.Errorf("failed to copy credentials: %v", err)
 	}
 
-	// Tell Windows to run this silently on startup via the Registry
+	// 3. COPY THE SAVED TAGS (Crucial!)
+	// We check if it exists first; if not, that's okay, we just skip it
+	if _, err := os.Stat("config.json"); err == nil {
+		copyFile("config.json", destConfig)
+	}
+
+	// 4. Set Registry for Startup
 	runCommand := fmt.Sprintf("\"%s\" --silent", destExe)
 	cmd := exec.Command("reg", "add", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "/v", "PCTracker", "/t", "REG_SZ", "/d", runCommand, "/f")
 

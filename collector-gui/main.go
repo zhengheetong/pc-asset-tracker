@@ -4,6 +4,7 @@ import (
 	"embed"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -46,38 +47,81 @@ func main() {
 
 // --- 3. SILENT MODE LOGIC ---
 func runSilentMode() {
-	log.Println("Running in background mode...")
+	// Setup File Logging
+	//exePath, _ := os.Executable()
+	logPath := filepath.Join("./", "tracker-debug.log")
 
-	// 1. Scan Hardware & Load Tags
-	specs, _ := ScanHardware()
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		log.SetOutput(logFile)
+		defer logFile.Close()
+	}
+
+	log.Println("==================================================")
+	log.Println("Starting Silent Background Scan...")
+
+	// 1. Scan Hardware
+	specs, err := ScanHardware()
+	if err != nil {
+		log.Printf("ERROR: Hardware scan encountered an issue: %v", err)
+	}
+	if specs.OS == "" {
+		specs.OS = getOSInfo()
+	}
+
+	// 2. Load Tags
 	config := LoadConfig()
 	specs.Tag1 = config.Tag1
 	specs.Tag2 = config.Tag2
 	specs.Tag3 = config.Tag3
 
-	// 2. Open Local Database
+	// --- NEW: PRINT ALL FOUND INFORMATION TO LOG ---
+	log.Println("--- Hardware Data Found ---")
+	log.Printf("Serial:     %s", specs.Serial)
+	log.Printf("OS:         %s", specs.OS)
+	log.Printf("CPU:        %s", specs.CPU)
+	log.Printf("RAM Total:  %s", specs.RAMTotal)
+	log.Printf("RAM Detail: %s", specs.RAMModules)
+	log.Printf("Disks:      %s", specs.Disks)
+	log.Printf("Dept Tag:   %s", specs.Tag1)
+	log.Printf("Loc Tag:    %s", specs.Tag2)
+	log.Printf("Type Tag:   %s", specs.Tag3)
+	log.Println("---------------------------")
+
+	// 3. Open Local Database
 	db, err := InitDB()
 	if err != nil {
-		log.Fatalf("Failed to open local database: %v", err)
+		log.Fatalf("CRITICAL: Failed to open local database: %v", err)
 	}
 	defer db.Close()
 
-	// 3. Check for Changes
+	// 4. Check for Changes
 	currentHash := GenerateHash(specs)
-	if HasHardwareChanged(db, specs.Serial, currentHash) {
-		log.Println("Changes detected. Uploading to Google Sheets...")
+	log.Printf("Generated hardware hash: %s", currentHash)
 
-		// 4. Upload to Cloud
-		err := UploadToGoogleSheets(specs)
+	if HasHardwareChanged(db, specs.Serial, currentHash) {
+		log.Println("Changes or new PC detected. Attempting upload to Google Sheets...")
+
+		// 5. Upload to Cloud
+		err = UploadToGoogleSheets(specs)
 		if err != nil {
-			log.Fatalf("Failed to upload: %v", err)
+			log.Printf("ERROR: Google Sheets upload failed: %v", err)
+			return
 		}
 
-		// (Make sure to update your local DB here so it doesn't upload again next time!)
-		// e.g., UpdateDatabase(db, specs.Serial, currentHash)
+		log.Println("SUCCESS: Data uploaded to Google Sheets!")
 
-		log.Println("Upload successful.")
+		// 6. Save the new hash locally
+		err = UpdateLocalHash(db, specs.Serial, currentHash)
+		if err != nil {
+			log.Printf("WARNING: Failed to save hash to local DB: %v", err)
+		} else {
+			log.Println("Local database updated with new hash.")
+		}
+
 	} else {
-		log.Println("No hardware changes detected. Exiting.")
+		log.Println("No hardware changes detected. Skipping upload.")
 	}
+
+	log.Println("Scan complete. Shutting down.")
 }

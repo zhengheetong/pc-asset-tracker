@@ -46,7 +46,7 @@ func UploadToGoogleSheets(specs PCSpecs) error {
 	}
 
 	// 5. Append the row to the bottom of "Sheet1"
-	writeRange := "Sheet1!A1"
+	writeRange := "Raw_Data!A1"
 	_, err = srv.Spreadsheets.Values.Append(spreadsheetId, writeRange, rb).
 		ValueInputOption("RAW").
 		InsertDataOption("INSERT_ROWS").

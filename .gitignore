@@ -1,2 +1,3 @@
 collector-gui/service-account.json
 collector-gui/local_cache.db
+collector-gui/tracker-debug.log

@@ -181,7 +181,6 @@
     color: #f8fafc;
     margin: 0;
     font-family: system-ui, -apple-system, sans-serif;
-    -webkit-user-select: none;
     height: 100vh;
     overflow-y: auto;
   }

@@ -139,6 +139,17 @@ func ScanHardware() (PCSpecs, error) {
 	return specs, nil
 }
 
+func getOSInfo() string {
+	var os string
+	var osData []Win32_OperatingSystem
+	queryOS := wmi.CreateQuery(&osData, "")
+	if err := wmi.Query(queryOS, &osData); err == nil && len(osData) > 0 {
+		// This will grab things like "Microsoft Windows 11 Pro"
+		os = osData[0].Caption
+	}
+	return os
+}
+
 func getSerialNumber() string {
 	var bios []Win32_BIOS
 	if err := wmi.Query(wmi.CreateQuery(&bios, ""), &bios); err == nil && len(bios) > 0 {
