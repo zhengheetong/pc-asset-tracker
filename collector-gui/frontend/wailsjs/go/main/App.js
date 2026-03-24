@@ -10,8 +10,8 @@ export function GetSpecs() {
   return window['go']['main']['App']['GetSpecs']();
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
+export function InstallToPC() {
+  return window['go']['main']['App']['InstallToPC']();
 }
 
 export function SaveConfig(arg1, arg2, arg3) {

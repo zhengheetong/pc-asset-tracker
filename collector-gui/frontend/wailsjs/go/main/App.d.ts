@@ -6,6 +6,6 @@ export function CheckCredentials():Promise<boolean>;
 
 export function GetSpecs():Promise<main.PCSpecs>;
 
-export function Greet(arg1:string):Promise<string>;
+export function InstallToPC():Promise<string>;
 
 export function SaveConfig(arg1:string,arg2:string,arg3:string):Promise<string>;

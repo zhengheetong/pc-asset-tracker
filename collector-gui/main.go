@@ -25,13 +25,14 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:  "PC Asset Tracker",
-		Width:  800,
-		Height: 600,
+		Title:         "PC Tracker Agent",
+		Width:         850,  // Widen to perfectly fit the two columns
+		Height:        750,  // Shrink height so there is no dead space
+		DisableResize: true, // Lock the window size
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 255, G: 255, B: 255, A: 255},
+		BackgroundColour: &options.RGBA{R: 15, G: 23, B: 42, A: 255}, // Matches our Dark Mode Slate background
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
