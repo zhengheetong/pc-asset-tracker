@@ -7,7 +7,7 @@ A comprehensive IT asset management solution designed for automated hardware inv
 | Component | URL |
 | :--- | :--- |
 | **Interactive Dashboard** | [pc-tracker-ui.vercel.app](https://pc-tracker-ui.vercel.app) |
-| **Google Looker Studio Report** | [View Analytics Report](https://lookerstudio.google.com/s/r480m8LFc4w) |
+| **Google Looker Studio Report** | [View Analytics Report](https://lookerstudio.google.com/reporting/70ab7b9a-874d-41eb-b49a-16f106db1e46) |
 | **Raw Data Source** | [Google Sheets Sample Data](https://docs.google.com/spreadsheets/d/1WK_dJKXyquSS0xivuej8Ic8WxPDBLpYsSvUVVFP3eM8/edit?usp=sharing) |
 
 ---
