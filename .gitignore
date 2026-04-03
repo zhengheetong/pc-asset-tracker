@@ -1,3 +1,24 @@
-collector-gui/service-account.json
-collector-gui/local_cache.db
-collector-gui/tracker-debug.log
+# --- PC Asset Tracker Global Ignore ---
+
+# 1. Dashboard (Svelte/Vite)
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vercel/
+dashboard/.vscode/
+
+# 2. Collector Agent (Go/Wails)
+collector-gui/build/bin/
+collector-gui/frontend/dist/
+collector-gui/collector-gui.exe
+collector-gui/collector-gui
+
+# 3. Local Runtime & Sensitive Data
+**/service-account.json
+**/config.json
+**/local_cache.db
+**/*.log
+
+# 4. OS/IDE leftovers
+.DS_Store
+Thumbs.db
+.vscode/

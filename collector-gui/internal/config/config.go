@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -17,7 +17,6 @@ const configPath = "config.json"
 func LoadConfig() AppConfig {
 	file, err := os.ReadFile(configPath)
 	if err != nil {
-		// Return defaults if file doesn't exist
 		return AppConfig{Tag1: "Default", Tag2: "Default", Tag3: "Default"}
 	}
 

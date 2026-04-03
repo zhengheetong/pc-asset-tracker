@@ -1,0 +1,29 @@
+/* =========================================
+   GLOBAL CSS VARIABLES & THEME TOKENS
+   PC Asset Tracker Branding
+========================================= */
+:root {
+  /* Colors - Modern Dark Slate Theme */
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --bg-main: #0f172a; /* Deep slate background */
+  --bg-card: #1e293b; /* Slightly lighter slate for cards */
+  --bg-input: #0f172a;
+  --border: #334155; /* Subtle dark border */
+  --text-main: #f8fafc; /* Off-white text */
+  --text-muted: #94a3b8; /* Dimmed text for labels/headers */
+  --text-dim: #cbd5e1; /* Light gray for table data */
+
+  /* Semantic Colors */
+  --os-badge-bg: #334155;
+  --os-badge-border: #475569;
+  --type-badge-bg: rgba(168, 85, 247, 0.15);
+  --type-badge-text: #c084fc;
+  --type-badge-border: rgba(168, 85, 247, 0.3);
+  --status-pulse: #3b82f6;
+
+  /* Fonts */
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}

@@ -1,4 +1,4 @@
-package main
+package scanner
 
 import (
 	"fmt"
@@ -55,11 +55,10 @@ func ScanHardware() (PCSpecs, error) {
 	var osData []Win32_OperatingSystem
 	queryOS := wmi.CreateQuery(&osData, "")
 	if err := wmi.Query(queryOS, &osData); err == nil && len(osData) > 0 {
-		// This will grab things like "Microsoft Windows 11 Pro"
 		specs.OS = osData[0].Caption
 	}
 
-	// 2. Get RAM Info (Total + Individual Modules via WMI)
+	// 2. Get RAM Info
 	var ramModules []Win32_PhysicalMemory
 	qRam := wmi.CreateQuery(&ramModules, "")
 
@@ -71,17 +70,13 @@ func ScanHardware() (PCSpecs, error) {
 			physicalTotalBytes += mod.Capacity
 			sizeGB := mod.Capacity / (1024 * 1024 * 1024)
 
-			// --- NEW: Trim DeviceLocator ---
-			// Examples: "Controller0-ChannelA" -> "A", "DIMM 1" -> "1"
 			slot := mod.DeviceLocator
 			slot = strings.ReplaceAll(slot, "Controller0-", "")
 			slot = strings.ReplaceAll(slot, "Channel", "")
 			slot = strings.ReplaceAll(slot, "DIMM", "")
 			slot = strings.TrimSpace(strings.ReplaceAll(slot, "-", ""))
 
-			// Add "Slot" prefix for better readability
 			displaySlot := fmt.Sprintf("Slot %s", slot)
-			// -------------------------------
 
 			vendor := strings.TrimSpace(mod.Manufacturer)
 			if vendor == "" || strings.ToLower(vendor) == "unknown" {
@@ -95,7 +90,7 @@ func ScanHardware() (PCSpecs, error) {
 			}
 
 			moduleStr := fmt.Sprintf("%s: %s %dGB %dMHz%s",
-				displaySlot, // Use the trimmed slot name
+				displaySlot,
 				vendor,
 				sizeGB,
 				mod.Speed,
@@ -108,18 +103,14 @@ func ScanHardware() (PCSpecs, error) {
 		specs.RAMModules = strings.Join(modules, " | ")
 	}
 
-	// Inside ScanHardware() in scanner.go
+	// Disks
 	var drives []Win32_DiskDrive
-	// Remove the "WHERE" clause temporarily to see if your disks appear
 	queryDisks := wmi.CreateQuery(&drives, "")
 
 	if err := wmi.Query(queryDisks, &drives); err == nil && len(drives) > 0 {
 		var validDisks []string
 		for _, d := range drives {
-			// Skip tiny partitions or virtual drives (less than 1GB)
 			sizeGB := d.Size / (1000 * 1000 * 1000)
-
-			// Also skip USB drives by checking the model or interface
 			isUSB := strings.Contains(strings.ToLower(d.InterfaceType), "usb") ||
 				strings.Contains(strings.ToLower(d.Model), "usb")
 
@@ -134,40 +125,38 @@ func ScanHardware() (PCSpecs, error) {
 	}
 
 	// 4. Serial Number
-	specs.Serial = getSerialNumber()
+	specs.Serial = GetSerialNumber()
 
 	return specs, nil
 }
 
-func getOSInfo() string {
-	var os string
+func GetOSInfo() string {
 	var osData []Win32_OperatingSystem
 	queryOS := wmi.CreateQuery(&osData, "")
 	if err := wmi.Query(queryOS, &osData); err == nil && len(osData) > 0 {
-		// This will grab things like "Microsoft Windows 11 Pro"
-		os = osData[0].Caption
+		return osData[0].Caption
 	}
-	return os
+	return ""
 }
 
-func getSerialNumber() string {
+func GetSerialNumber() string {
 	var bios []Win32_BIOS
 	if err := wmi.Query(wmi.CreateQuery(&bios, ""), &bios); err == nil && len(bios) > 0 {
-		if isValidSerial(bios[0].SerialNumber) {
+		if IsValidSerial(bios[0].SerialNumber) {
 			return strings.TrimSpace(bios[0].SerialNumber)
 		}
 	}
 
 	var csp []Win32_ComputerSystemProduct
 	if err := wmi.Query(wmi.CreateQuery(&csp, ""), &csp); err == nil && len(csp) > 0 {
-		if isValidSerial(csp[0].IdentifyingNumber) {
+		if IsValidSerial(csp[0].IdentifyingNumber) {
 			return strings.TrimSpace(csp[0].IdentifyingNumber)
 		}
 	}
 
 	var board []Win32_BaseBoard
 	if err := wmi.Query(wmi.CreateQuery(&board, ""), &board); err == nil && len(board) > 0 {
-		if isValidSerial(board[0].SerialNumber) {
+		if IsValidSerial(board[0].SerialNumber) {
 			return strings.TrimSpace(board[0].SerialNumber)
 		}
 	}
@@ -175,7 +164,7 @@ func getSerialNumber() string {
 	return "Unknown Serial"
 }
 
-func isValidSerial(s string) bool {
+func IsValidSerial(s string) bool {
 	s = strings.ToLower(strings.TrimSpace(s))
 	bad := []string{"", "none", "unknown", "default string", "to be filled by o.e.m.", "system serial number", "00000000"}
 	for _, b := range bad {

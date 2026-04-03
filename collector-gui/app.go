@@ -1,8 +1,9 @@
 package main
 
 import (
+	"collector-gui/internal/config"
+	"collector-gui/internal/scanner"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -13,12 +14,6 @@ import (
 // App struct
 type App struct {
 	ctx context.Context
-}
-
-type Config struct {
-	Tag1 string `json:"tag1"`
-	Tag2 string `json:"tag2"`
-	Tag3 string `json:"tag3"`
 }
 
 func getConfigPath() string {
@@ -37,34 +32,29 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) GetSpecs() PCSpecs {
+func (a *App) GetSpecs() scanner.PCSpecs {
 	// 1. Get the hardware info
-	specs, _ := ScanHardware()
+	specs, _ := scanner.ScanHardware()
 
 	// 2. Load the current tags from config.json
-	config := LoadConfig()
+	cfg := config.LoadConfig()
 
 	// 3. Attach the tags to the specs struct
-	specs.Tag1 = config.Tag1
-	specs.Tag2 = config.Tag2
-	specs.Tag3 = config.Tag3
+	specs.Tag1 = cfg.Tag1
+	specs.Tag2 = cfg.Tag2
+	specs.Tag3 = cfg.Tag3
 
 	return specs
 }
 
 func (a *App) SaveConfig(tag1, tag2, tag3 string) string {
-	cfg := Config{
+	cfg := config.AppConfig{
 		Tag1: tag1,
 		Tag2: tag2,
 		Tag3: tag3,
 	}
 
-	data, err := json.MarshalIndent(cfg, "", "  ")
-	if err != nil {
-		return "Failed to encode config: " + err.Error()
-	}
-
-	err = os.WriteFile(getConfigPath(), data, 0644)
+	err := config.SaveConfig(cfg)
 	if err != nil {
 		return "Failed to save config.json!"
 	}
@@ -72,7 +62,7 @@ func (a *App) SaveConfig(tag1, tag2, tag3 string) string {
 	return "Tags successfully saved to config.json!"
 }
 
-// 1. Check if the credentials file sits next to the executable
+// CheckCredentials checks if the credentials file sits next to the executable
 func (a *App) CheckCredentials() bool {
 	_, err := os.Stat("service-account.json")
 	return err == nil
@@ -94,7 +84,7 @@ func (a *App) InstallToPC() (string, error) {
 
 	destExe := filepath.Join(installDir, filepath.Base(exePath))
 	destJson := filepath.Join(installDir, "service-account.json")
-	destConfig := filepath.Join(installDir, "config.json") // <--- New path
+	destConfig := filepath.Join(installDir, "config.json")
 
 	// 1. Copy the Executable
 	if err := copyFile(exePath, destExe); err != nil {
@@ -106,8 +96,7 @@ func (a *App) InstallToPC() (string, error) {
 		return "", fmt.Errorf("failed to copy credentials: %v", err)
 	}
 
-	// 3. COPY THE SAVED TAGS (Crucial!)
-	// We check if it exists first; if not, that's okay, we just skip it
+	// 3. Copy the Saved Tags
 	if _, err := os.Stat("config.json"); err == nil {
 		copyFile("config.json", destConfig)
 	}
@@ -123,7 +112,6 @@ func (a *App) InstallToPC() (string, error) {
 	return "Successfully installed! The tracker will now run silently in the background on startup.", nil
 }
 
-// 3. A simple helper function to copy files
 func copyFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
