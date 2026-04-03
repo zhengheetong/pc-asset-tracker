@@ -39,19 +39,21 @@ func (a *App) GetSpecs() scanner.PCSpecs {
 	// 2. Load the current tags from config.json
 	cfg := config.LoadConfig()
 
-	// 3. Attach the tags to the specs struct
+	// 3. Attach the configuration to the specs struct
 	specs.Tag1 = cfg.Tag1
 	specs.Tag2 = cfg.Tag2
 	specs.Tag3 = cfg.Tag3
+	specs.SpreadsheetID = cfg.SpreadsheetID
 
 	return specs
 }
 
-func (a *App) SaveConfig(tag1, tag2, tag3 string) string {
+func (a *App) SaveConfig(tag1, tag2, tag3, spreadsheetId string) string {
 	cfg := config.AppConfig{
-		Tag1: tag1,
-		Tag2: tag2,
-		Tag3: tag3,
+		Tag1:          tag1,
+		Tag2:          tag2,
+		Tag3:          tag3,
+		SpreadsheetID: spreadsheetId,
 	}
 
 	err := config.SaveConfig(cfg)
@@ -59,7 +61,7 @@ func (a *App) SaveConfig(tag1, tag2, tag3 string) string {
 		return "Failed to save config.json!"
 	}
 
-	return "Tags successfully saved to config.json!"
+	return "Settings successfully saved to config.json!"
 }
 
 // CheckCredentials checks if the credentials file sits next to the executable
@@ -96,9 +98,11 @@ func (a *App) InstallToPC() (string, error) {
 		return "", fmt.Errorf("failed to copy credentials: %v", err)
 	}
 
-	// 3. Copy the Saved Tags
+	// 3. Copy the Saved Config/Tags
 	if _, err := os.Stat("config.json"); err == nil {
-		copyFile("config.json", destConfig)
+		if err := copyFile("config.json", destConfig); err != nil {
+			return "", fmt.Errorf("failed to copy config.json: %v", err)
+		}
 	}
 
 	// 4. Set Registry for Startup

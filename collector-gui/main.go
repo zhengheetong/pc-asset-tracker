@@ -102,7 +102,7 @@ func runSilentMode() {
 		log.Println("Changes or new PC detected. Attempting upload to Google Sheets...")
 
 		// 5. Upload to Cloud
-		err = api.UploadToGoogleSheets(specs)
+		err = api.UploadToGoogleSheets(specs, cfg.SpreadsheetID)
 		if err != nil {
 			log.Printf("ERROR: Google Sheets upload failed: %v", err)
 			return

@@ -6,9 +6,10 @@ import (
 )
 
 type AppConfig struct {
-	Tag1 string `json:"tag1"`
-	Tag2 string `json:"tag2"`
-	Tag3 string `json:"tag3"`
+	Tag1          string `json:"tag1"`
+	Tag2          string `json:"tag2"`
+	Tag3          string `json:"tag3"`
+	SpreadsheetID string `json:"spreadsheetId"`
 }
 
 const configPath = "config.json"
@@ -17,11 +18,18 @@ const configPath = "config.json"
 func LoadConfig() AppConfig {
 	file, err := os.ReadFile(configPath)
 	if err != nil {
-		return AppConfig{Tag1: "Default", Tag2: "Default", Tag3: "Default"}
+		return AppConfig{
+			Tag1:          "Default",
+			Tag2:          "Default",
+			Tag3:          "Default",
+			SpreadsheetID: "",
+		}
 	}
 
 	var config AppConfig
 	json.Unmarshal(file, &config)
+
+	// No fallback here, keep it clean
 	return config
 }
 

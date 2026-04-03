@@ -16,9 +16,10 @@ type PCSpecs struct {
 	RAMModules string `json:"ramModules"`
 	Disks      string `json:"disks"`
 	Serial     string `json:"serial"`
-	Tag1       string `json:"tag1"`
-	Tag2       string `json:"tag2"`
-	Tag3       string `json:"tag3"`
+	Tag1          string `json:"tag1"`
+	Tag2          string `json:"tag2"`
+	Tag3          string `json:"tag3"`
+	SpreadsheetID string `json:"spreadsheetId"`
 }
 
 // WMI Structs

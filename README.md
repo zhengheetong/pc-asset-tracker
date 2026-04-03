@@ -106,9 +106,13 @@ npm run build
 
 ## 🔐 Security & Configuration
 
-To enable the cloud sync feature, a `service-account.json` file from the Google Cloud Console must be placed in the application root directory. This file contains the credentials required to authenticate with the Google Sheets API.
+To enable the cloud sync feature:
+1.  **Google Credentials**: Place a `service-account.json` file from the Google Cloud Console in the application root directory. This contains the credentials for the Google Sheets API.
+2.  **Spreadsheet Configuration**: The target Google Sheet is identified by its **Spreadsheet ID**. This can be configured in two ways:
+    *   **GUI**: Enter the ID in the "Asset Tags" section of the application and click "Save Settings to Config".
+    *   **Manual**: Edit the `config.json` file in the application root and set the `"spreadsheetId"` field.
 
-**Note:** Ensure `service-account.json` and `config.json` are added to your `.gitignore` to prevent leaking sensitive credentials or local environment settings.
+**Note:** Heavy security precautions are in place. Ensure `service-account.json`, `config.json`, and `local_cache.db` are excluded from version control via `.gitignore` to protect sensitive credentials and environment-specific data.
 
 ---
 ### 👨‍💻 Credits

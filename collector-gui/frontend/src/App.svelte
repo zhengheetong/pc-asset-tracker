@@ -11,7 +11,8 @@
     serial: "",
     tag1: "Default",
     tag2: "Default",
-    tag3: "Default"
+    tag3: "Default",
+    spreadsheetId: ""
   };
 
   let statusMessage = "";
@@ -30,6 +31,7 @@
         if (!specs.tag1) specs.tag1 = "Default";
         if (!specs.tag2) specs.tag2 = "Default";
         if (!specs.tag3) specs.tag3 = "Default";
+        if (!specs.spreadsheetId) specs.spreadsheetId = "";
       }
     } catch (err) {
       console.error("Error loading specs:", err);
@@ -38,9 +40,14 @@
 
   async function handleSave() {
     statusMessage = "Saving...";
-    const result = await SaveConfig(specs.tag1, specs.tag2, specs.tag3);
+    const result = await SaveConfig(
+      specs.tag1,
+      specs.tag2,
+      specs.tag3,
+      specs.spreadsheetId
+    );
     statusMessage = result;
-    setTimeout(() => statusMessage = "", 3000);
+    setTimeout(() => (statusMessage = ""), 3000);
   }
 
   async function handleInstall() {
@@ -140,8 +147,12 @@
             <span class="label">Type</span>
             <input bind:value={specs.tag3} placeholder="Default" />
           </div>
-          
-          <button class="primary-btn" on:click={handleSave}>Save Tags to Config</button>
+          <div class="input-group">
+            <span class="label">Sheet ID</span>
+            <input bind:value={specs.spreadsheetId} placeholder="Google Sheet ID" />
+          </div>
+
+          <button class="primary-btn" on:click={handleSave}>Save Settings to Config</button>
           {#if statusMessage}<p class="status-msg success-text">{statusMessage}</p>{/if}
         </div>
 

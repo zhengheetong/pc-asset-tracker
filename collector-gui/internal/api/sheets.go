@@ -12,14 +12,13 @@ import (
 )
 
 // UploadToGoogleSheets pushes the PCSpecs to your cloud spreadsheet
-func UploadToGoogleSheets(specs scanner.PCSpecs) error {
+func UploadToGoogleSheets(specs scanner.PCSpecs, spreadsheetId string) error {
 	ctx := context.Background()
 
 	// 1. Path to your service account key file
 	credentialsFile := "service-account.json"
 
-	// 2. Your Spreadsheet ID
-	spreadsheetId := "1WK_dJKXyquSS0xivuej8Ic8WxPDBLpYsSvUVVFP3eM8"
+	// 2. Spreadsheet ID is now passed as an argument
 
 	// 3. Initialize the Sheets service
 	srv, err := sheets.NewService(ctx, option.WithCredentialsFile(credentialsFile))
