@@ -98,11 +98,9 @@ func (a *App) InstallToPC() (string, error) {
 		return "", fmt.Errorf("failed to copy credentials: %v", err)
 	}
 
-	// 3. Copy the Saved Config/Tags
+	// 3. Copy the Saved Tags
 	if _, err := os.Stat("config.json"); err == nil {
-		if err := copyFile("config.json", destConfig); err != nil {
-			return "", fmt.Errorf("failed to copy config.json: %v", err)
-		}
+		copyFile("config.json", destConfig)
 	}
 
 	// 4. Set Registry for Startup
